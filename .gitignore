@@ -1,0 +1,9 @@
+.venv/
+.idea/
+.env*
+__pycache__/
+pytest_cache/
+
+# SSL keys and certs
+*.pem
+*.csr
