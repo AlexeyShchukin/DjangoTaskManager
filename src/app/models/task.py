@@ -19,6 +19,10 @@ class Status(StrEnum):
 
 
 class Task(models.Model):
+    """
+   Represents a main task with a title, description,
+   categories, status, and deadline.
+   """
     title: str = models.CharField(
         max_length=100
     )
@@ -32,7 +36,7 @@ class Task(models.Model):
         related_name='tasks',
     )
 
-    status: str =  models.CharField(
+    status: str = models.CharField(
         choices=Status.choices(),
         default="New",
     )
@@ -47,9 +51,10 @@ class Task(models.Model):
 
     class Meta:
         """Meta options for the Task model."""
+        db_table = "'task_manager_task'"
         verbose_name = "Task"
         verbose_name_plural = "Tasks"
-        ordering = ["deadline", "-created_at"]
+        ordering = ["-created_at"]
         constraints = [
             UniqueConstraint(
                 F('title'),
@@ -60,12 +65,14 @@ class Task(models.Model):
         ]
 
     def __str__(self):
+        """String representation of the Task object."""
         return self.title
+
 
 class SubTask(models.Model):
     title: str = models.CharField(
         max_length=100,
-        verbose_name="SubTask Title"
+        unique=True
     )
     description: str = models.TextField(
         null=True,
@@ -93,9 +100,11 @@ class SubTask(models.Model):
 
     class Meta:
         """Meta options for the SubTask model."""
+        db_table ="task_manager_subtask"
         verbose_name = "SubTask"
         verbose_name_plural = "SubTasks"
-        ordering = ["deadline", "-created_at"]
+        ordering = ["-created_at"]
+
 
     def __str__(self):
         return self.title
@@ -105,7 +114,12 @@ class Category(models.Model):
     name: str = models.CharField(
         max_length=30,
         unique=True,
-        )
+    )
+
+    class Meta:
+        db_table = "task_manager_category"
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
 
     def __str__(self):
         return self.name
