@@ -1,44 +1,33 @@
 from datetime import datetime
-from enum import StrEnum
 
 from django.db import models
-from django.db.models import ForeignKey, UniqueConstraint, F
 from django.db.models.functions import TruncDate
 
 
-class Status(StrEnum):
-    NEW = "New"
-    IN_PROGRESS = "In Progress"
-    PENDING = "Pending"
-    BLOCKED = "Blocked"
-    DONE = "Done"
-
-    @classmethod
-    def choices(cls):
-        return [(attr.name, attr.value) for attr in cls]
+class Status(models.TextChoices):
+    """Represents the possible statuses for tasks and subtasks."""
+    NEW = "new", "New"
+    IN_PROGRESS = "in_progress", "In Progress"
+    PENDING = "pending", "Pending"
+    BLOCKED = "blocked", "Blocked"
+    DONE = "done", "Done"
 
 
-class Task(models.Model):
+class BaseTask(models.Model):
     """
-   Represents a main task with a title, description,
-   categories, status, and deadline.
-   """
+    Abstract base model containing common fields for Task and SubTask.
+    """
     title: str = models.CharField(
-        max_length=100
+        max_length=200,
     )
     description: str = models.TextField(
         null=True,
         blank=True
     )
-    categories = models.ManyToManyField(
-        'Category',
-        symmetrical=False,
-        related_name='tasks',
-    )
-
     status: str = models.CharField(
-        choices=Status.choices(),
-        default="New",
+        max_length=20,
+        choices=Status.choices,
+        default=Status.NEW,
     )
     deadline: datetime = models.DateTimeField(
         null=True,
@@ -50,73 +39,68 @@ class Task(models.Model):
     )
 
     class Meta:
+        """Meta options for the BaseTask model."""
+        abstract = True
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return self.title
+
+
+class Task(BaseTask):
+    """
+   Represents a main task with a title, description,
+   categories, status, and deadline.
+   """
+    categories = models.ManyToManyField(
+        'Category',
+        related_name='tasks',
+    )
+
+    class Meta(BaseTask.Meta):
         """Meta options for the Task model."""
         db_table = "'task_manager_task'"
         verbose_name = "Task"
         verbose_name_plural = "Tasks"
-        ordering = ["-created_at"]
         constraints = [
-            UniqueConstraint(
-                F('title'),
+            models.UniqueConstraint(
+                models.F('title'),
                 TruncDate('created_at'),
                 name='unique_task_title_per_day',
                 violation_error_message="A task with this title already exists for this date."
             )
         ]
 
-    def __str__(self):
-        """String representation of the Task object."""
-        return self.title
 
-
-class SubTask(models.Model):
+class SubTask(BaseTask):
+    """Represents a sub-task, which is a part of a main Task."""
     title: str = models.CharField(
-        max_length=100,
+        max_length=200,
         unique=True
     )
-    description: str = models.TextField(
-        null=True,
-        blank=True
-    )
-
-    task = ForeignKey(
+    task = models.ForeignKey(
         'Task',
         on_delete=models.CASCADE,
         related_name='subtasks',
         verbose_name="Parent Task"
     )
-    status: str = models.CharField(
-        choices=Status.choices(),
-        default="New",
-    )
-    deadline: datetime = models.DateTimeField(
-        null=True,
-        blank=True
-    )
-    created_at: datetime = models.DateTimeField(
-        auto_now_add=True,
-        editable=False
-    )
 
-    class Meta:
+    class Meta(BaseTask.Meta):
         """Meta options for the SubTask model."""
-        db_table ="task_manager_subtask"
+        db_table = "task_manager_subtask"
         verbose_name = "SubTask"
         verbose_name_plural = "SubTasks"
-        ordering = ["-created_at"]
-
-
-    def __str__(self):
-        return self.title
 
 
 class Category(models.Model):
+    """Represents a category for tasks."""
     name: str = models.CharField(
         max_length=30,
         unique=True,
     )
 
     class Meta:
+        """Meta options for the Category model."""
         db_table = "task_manager_category"
         verbose_name = "Category"
         verbose_name_plural = "Categories"
