@@ -8,13 +8,13 @@ from django.shortcuts import get_object_or_404
 
 from src.app.models import Task
 from src.app.models.task import Status
-from src.app.serializers import TaskSerializer
+from src.app.serializers import TaskDetailSerializer
 
 
 @api_view(['GET'])
 def get_all_tasks(request: Request) -> Response:
     response_data = Task.objects.all()
-    serializer = TaskSerializer(data=response_data, many=True)
+    serializer = TaskDetailSerializer(data=response_data, many=True)
     if serializer.is_valid():
         return Response(data=serializer.data, status=status.HTTP_200_OK)
     return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -22,7 +22,7 @@ def get_all_tasks(request: Request) -> Response:
 @api_view(['GET'])
 def get_task_by_id(request: Request, task_id: int) -> Response:
     task = get_object_or_404(Task, id=task_id)
-    serializer = TaskSerializer(task)
+    serializer = TaskDetailSerializer(task)
     return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
@@ -30,7 +30,7 @@ def get_task_by_id(request: Request, task_id: int) -> Response:
 def create_task(request: Request) -> Response:
     raw_data = request.data
 
-    serializer = TaskSerializer(data=raw_data)
+    serializer = TaskDetailSerializer(data=raw_data)
 
     if serializer.is_valid():
         serializer.save()
