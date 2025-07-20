@@ -10,8 +10,18 @@ from src.app.serializers import SubTaskCreateSerializer, SubTaskSerializer
 
 class SubTaskListCreateView(APIView):
     def get(self, request: Request) -> Response:
-        subtasks = SubTask.objects.all()
-        serializer = SubTaskSerializer(subtasks, many=True)
+        query_params = request.query_params
+        queryset = SubTask.objects.all()
+        task_title = query_params.get('task')
+        subtask_status =query_params.get('status')
+
+        if task_title:
+            queryset = queryset.filter(task__title=task_title)
+
+        if subtask_status:
+            queryset = queryset.filter(status=subtask_status)
+
+        serializer = SubTaskSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def post(self, request: Request) -> Response:
