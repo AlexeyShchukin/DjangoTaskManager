@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from src.app.models import Task, SubTask, Category
+from src.app.models import Task, SubTask
+from src.app.models.category import Category
 from src.app.models.task import Status
 
 admin.site.register(Category)

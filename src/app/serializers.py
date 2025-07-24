@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 
 from rest_framework import serializers
 
-from src.app.models import Task, SubTask, Category
+from src.app.models import Task, SubTask
+from src.app.models.category import Category
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
@@ -58,3 +59,8 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
 
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = "__all__"

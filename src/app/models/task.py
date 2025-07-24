@@ -90,20 +90,3 @@ class SubTask(BaseTask):
         db_table = "task_manager_subtask"
         verbose_name = "SubTask"
         verbose_name_plural = "SubTasks"
-
-
-class Category(models.Model):
-    """Represents a category for tasks."""
-    name: str = models.CharField(
-        max_length=30,
-        unique=True,
-    )
-
-    class Meta:
-        """Meta options for the Category model."""
-        db_table = "task_manager_category"
-        verbose_name = "Category"
-        verbose_name_plural = "Categories"
-
-    def __str__(self):
-        return self.name
