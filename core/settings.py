@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 from environ import Env
@@ -120,6 +120,66 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'src.app.paginators.CustomCursorPaginator'
+}
+
+LOG_LEVEL = 'DEBUG' if env.bool('DEBUG') else 'INFO'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}]: | Module:{module}-Method:{funcName} Line:{lineno} - {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
+
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': LOG_LEVEL,
+            'formatter': 'verbose'
+        },
+         'http_file': {
+            'level': LOG_LEVEL,
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'http_logs.log'),
+            'formatter': 'verbose',
+        },
+
+        'db_file': {
+            'level': LOG_LEVEL,
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'db_logs.log'),
+            'formatter': 'verbose',
+        },
+    },
+
+    'loggers': {
+        'django.server': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+
+        'django.request': {
+            'handlers': ['http_file'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+
+        'django.db.backends': {
+            'handlers': ['db_file'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+    },
+}
 
 
 # Internationalization
