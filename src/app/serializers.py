@@ -22,6 +22,7 @@ class TaskDetailSerializer(serializers.ModelSerializer):
 
 
 class SubTaskCreateSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
@@ -30,6 +31,8 @@ class SubTaskCreateSerializer(serializers.ModelSerializer):
 
 
 class TaskCreateSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Task
         fields = '__all__'

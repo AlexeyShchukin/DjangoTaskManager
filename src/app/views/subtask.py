@@ -1,6 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import get_object_or_404, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.request import Request
@@ -20,6 +21,7 @@ class SubTaskListCreateView(ListCreateAPIView):
     filterset_fields = ["status", "deadline"]
     search_fields = ["title", "description"]
     ordering_fields = ["created_at"]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -30,6 +32,7 @@ class SubTaskListCreateView(ListCreateAPIView):
 class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView ):
     queryset = SubTask.objects.all()
     lookup_url_kwarg = 'subtask_id'
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':

@@ -1,11 +1,13 @@
 from django.db.models import Count
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from src.app.models.category import Category
 from src.app.serializers import CategoryCreateSerializer, CategorySerializer
@@ -14,6 +16,7 @@ from src.app.serializers import CategoryCreateSerializer, CategorySerializer
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.prefetch_related("tasks")
     serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
 
     @action(methods=["get"], detail=False, url_path="tasks_count")
     def count_tasks(self, request):

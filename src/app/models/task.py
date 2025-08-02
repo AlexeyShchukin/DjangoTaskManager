@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.db import models
 from django.db.models.functions import TruncDate
+from django.conf import settings
 
 
 class Status(models.TextChoices):
@@ -56,6 +57,12 @@ class Task(BaseTask):
         'Category',
         related_name='tasks',
     )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="tasks"
+    )
 
     class Meta(BaseTask.Meta):
         """Meta options for the Task model."""
@@ -83,6 +90,12 @@ class SubTask(BaseTask):
         on_delete=models.CASCADE,
         related_name='subtasks',
         verbose_name="Parent Task"
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="subtasks"
     )
 
     class Meta(BaseTask.Meta):
