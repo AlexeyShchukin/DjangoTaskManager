@@ -14,6 +14,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 
 from src.app.models import Task
 from src.app.models.task import Status
+from src.app.permissions import IsOwnerOrReadOnly
 from src.app.serializers import TaskDetailSerializer, TaskCreateSerializer
 
 
@@ -38,10 +39,10 @@ class TaskListCreateView(ListCreateAPIView):
         serializer.save(owner=self.request.user)
 
 
-class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView ):
+class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     lookup_url_kwarg = 'task_id'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':

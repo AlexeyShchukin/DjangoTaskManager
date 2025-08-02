@@ -8,6 +8,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from src.app.models import SubTask
+from src.app.permissions import IsOwnerOrReadOnly
 from src.app.serializers import SubTaskCreateSerializer, SubTaskSerializer
 
 
@@ -21,7 +22,7 @@ class SubTaskListCreateView(ListCreateAPIView):
     filterset_fields = ["status", "deadline"]
     search_fields = ["title", "description"]
     ordering_fields = ["created_at"]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -29,10 +30,10 @@ class SubTaskListCreateView(ListCreateAPIView):
         return SubTaskCreateSerializer
 
 
-class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView ):
+class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     lookup_url_kwarg = 'subtask_id'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
